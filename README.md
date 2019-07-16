@@ -6,6 +6,7 @@ Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://j
 
 ### General steps for each module
 
+- Fork the module
 - Create a basic Dockerfile and implement a docker-compose workflow
 - Implement console logging and verbosity
 - Avoid code changes whenever possible
@@ -16,5 +17,21 @@ Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://j
 
 ### Implemented modules
 
-- common-ui
+- commonui-bs3
+- commonui-sample
+
+### Modules' comments
+
+#### commonui-bs3
+
+This module gained a simple Dockerfile and a docker-compose workflow. It demonstrates the most basic techniques for a container project, but the produced image itself is almost useless: you are most likely to produce a static commonui web server image from scratch.
+
+In brazilian ALA, for example, we built a single image with both commonui-bs3 and commonui-bs2 contexts - some modules use different commonui versions for static content (including javascript). Sweden bioatlas mounts a static local folder (containing bs2 and bs3 files) in a vanilla nginx image.
+
+#### commonui-sample
+
+We need self-contained images for a portable k8s deployment, but we can't be sure of what files must be hand-picked from the original commonui-* projects. In order to keep this project small the entire commonui-bs3 and commonui-bs2 content is downloaded at build time, but overwritten by this project's files.
+
+Docker-compose workflow makes an interesting trick replacing the image default command in a developer's machine: only new pages are versioned, but they are mounted in a staging folder and copied into the web server folder.
+
 
