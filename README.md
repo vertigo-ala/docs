@@ -1,37 +1,20 @@
-## Welcome to GitHub Pages
+## Welcome to Vertigo ALA
 
-You can use the [editor on GitHub](https://github.com/vertigo-ala/docs/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+This is a proof of concept for a dockerized version of a few ALA modules (Atlas of Living Australia). These repos will serve the purpose of setting a common ground for discussion among ALA mantainers.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
-### Markdown
+### General steps for each module
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+- Create a basic Dockerfile and implement a docker-compose workflow
+- Implement console logging and verbosity
+- Avoid code changes whenever possible
+- Define a minimal set of externalized configs for the container
+- Automate container build (Docker hub auto build and/or Gitlab CI)
+- Create a sample project derived from this image (sample custom module)
+- Create a helm chart for k8s deployment with self-documented values.yaml
 
-```markdown
-Syntax highlighted code block
+### Implemented modules
 
-# Header 1
-## Header 2
-### Header 3
+- common-ui
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/vertigo-ala/docs/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
