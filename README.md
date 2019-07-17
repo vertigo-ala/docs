@@ -19,6 +19,7 @@ Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://j
 
 - commonui-bs3
 - commonui-sample
+- image-service
 
 ### Modules' comments
 
@@ -34,4 +35,14 @@ We need self-contained images for a portable k8s deployment, but we can't be sur
 
 Docker-compose workflow makes an interesting trick replacing the image default command in a developer's machine: only new pages are versioned, but they are mounted in a staging folder and copied into the web server folder.
 
+#### image-service
+
+This is the image-service module image and docker-compose for local development. The image a minimal `image-config.properties` that defaults to:
+
+- Australia CAS login
+- Bypass CAS security
+- Postgres database at jdbc:postgresql://pgdbimage/images
+- Home at http://localhost:8080/images/
+
+Bypassing security with CAS enabled is required for admin pages to work for any user for most ALA modules (good for local development).
 
