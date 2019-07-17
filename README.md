@@ -20,6 +20,7 @@ Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://j
 - commonui-bs3
 - commonui-sample
 - image-service
+- image-sample
 
 ### Modules' comments
 
@@ -37,12 +38,16 @@ Docker-compose workflow makes an interesting trick replacing the image default c
 
 #### image-service
 
-This is the image-service module image and docker-compose for local development. The image a minimal `image-config.properties` that defaults to:
+This is the image-service module image and docker-compose for local development. The image contains a minimal `image-config.properties` that defaults to:
 
 - Australia CAS login
 - Bypass CAS security
-- Postgres database at jdbc:postgresql://pgdbimage/images
+- Postgres database at jdbc:postgresql://pgdbimage/images (side container)
+- Elasticsearch running on a side container
 - Home at http://localhost:8080/images/
 
 Bypassing security with CAS enabled is required for admin pages to work for any user for most ALA modules (good for local development).
 
+#### image-sample
+
+This is a sample deployment of the reusable image-service container with a custom properties file. A custom commonui runs in a side container.
