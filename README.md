@@ -21,22 +21,92 @@ Docker-compose is a tool that simplifies development of multi-container projects
 
 The typical journey of any developer pulling the project for the first time is:
 
-```
+```sh
 docker-compose up --build
 ```
 
-This command will build the dockerfile and start the containers as dictated by `docker-compose.yml` (mounts, networks, service names, etc.). A developer can therefore make sure the project runs automagically in any case, regardless of developers' platform.
+This command will build the dockerfile and start the containers as dictated by `docker-compose.yml` (mounts, networks, service names, ports etc.). A developer can therefore make sure the project runs automagically in any case, regardless of developers' platform.
 
 Further refinement can enable class hot-reloading, so that code maintenance is done over a live container.
 
-### Implemented modules
+### Localhost vs Remote deployment
 
+All the default settings in docker-compose and properties files target localhost deployment in Docker Desktop developer workstations. The focus is on developer onboarding and predictability, not production deployments (for those we will provide helm charts).
+
+As a middle ground we will try to maintain sample config and compose files for remote swarm mode deployment, testable on play-with-docker disposable nodes.
+
+### Tips for remote play-with-docker deployment
+
+[Play-with-docker](https://play-with-docker.com) is an excellent way to test a remote deployment for free.
+
+1. Create PWD instances using the "3 Managers, 2 Workers" template
+2. Write down manager1 external hostname using any of the tricks below, resulting in a hostname in the form "ipxxxxx-yyyyyyyyyy.direct.labs.play-with-docker.com":
+
+    - Copy the SSH hostname PWD gives and replace "@" for "."
+    - **OR** run the command below from manager1 shell for its output:
+
+```sh
+echo "ip$(ifconfig eth1 | grep Mask | awk '{print $2}'| cut -f2 -d: | tr '.' '-')-$SESSION_ID.direct.labs.play-with-docker.com"
+```
+
+3. Adjust your local DOCKER_HOST env var to the remote manager's engine in the form below, testing for the node list:
+
+```sh
+export DOCKER_HOST=tcp://<your-manager-external-hostname>:2375
+docker node ls
+ID                            HOSTNAME            ...
+tew2q0h8s9eodehgf8qp8198t *   manager1            ...
+hayzvxmep8gzh8vy0e6kxadrq     manager2            ...
+7jopxdbgb44ulzrnt9zi8xkqh     manager3            ...
+yihno6jr5uett2q9tedemoif4     worker1             ...
+p20xoglmofu3id98ec6yd6kr0     worker2             ...
+```
+
+Congratulations, you are in control of a remote play-with-docker swarm from your local command-line promt.
+
+Deployments against a remote swarm should de done like below:
+
+```sh
+cd <module>
+docker stack deploy -c docker-compose-swarm.yml <module-name>
+```
+
+Removal is also done from the command-line:
+
+```sh
+cd <module>
+docker stack remove <service-name>
+```
+
+### Implemented/deployed modules
+
+- traefik
 - commonui-bs3
 - commonui-sample
 - image-service
 - image-sample
 
 ### Modules' comments
+
+#### traefik
+
+*Please ignore traefik if you are running the modules locally with docker-compose.*
+
+Traefik serves as a http load balancer and reverse proxy for swarm mode deployment. In kubernetes traefik can also work as an ingress controller.
+
+Problem is **YOU MUST** edit the `swarm/images-config.properties` file *before* deployment, so that the URL references are set to rely on traefik.
+
+In swarm mode all modules will be available through traefik in port 8000 (as per docker-compose files), so you can edit `swarm/images-config.properties` entries to use any valid IP or DNS name.
+
+Play-with-docker DNS names are random, but you can use a similar trick to the one you used before:
+
+```sh
+echo "ip$(ifconfig eth1 | grep Mask | awk '{print $2}'| cut -f2 -d: | tr '.' '-')-$SESSION_ID-8000.direct.labs.play-with-docker.com"
+```
+
+Use this hostname in `swarm/images-config.properties` when running remotely in play-with-docker and you will be fine.
+
+Play-with-docker will also generate a clickable URL for the traefik container 8000 port, but the link itself is broken: you need to add the module path at its end ("/images" for image-service, for example).
 
 #### commonui-bs3
 
@@ -49,6 +119,8 @@ In brazilian ALA, for example, we built a single image with both commonui-bs3 an
 We need self-contained images for a portable k8s deployment, but we can't be sure of what files must be hand-picked from the original commonui-* projects. In order to keep this project small the entire commonui-bs3 and commonui-bs2 content is downloaded at build time (see Dockerfile), but overwritten by this project's files. This reduces the amount of mantained files.
 
 Docker-compose workflow makes an interesting trick replacing the default command in a developer's machine: the versioned pages are mounted in a staging folder and copied into the web server folder every 2 seconds. Kinda lame but it works.
+
+- Home at <http://localhost:8000/commonui-bs3/>
 
 #### image-service
 
@@ -70,7 +142,7 @@ Bypassing security with CAS enabled is required for admin pages to work for any 
 
 This is a sample deployment of the reusable image-service container with a custom properties file. A custom commonui runs in a side container and image-store is played by a dedicated nginx container.
 
-Again docker-compose is used for local build and development. The image contains a minimal `image-config.properties` that defaults to:
+Again docker-compose is used for local build and testing. The image contains a minimal `image-config.properties` that defaults to:
 
 - Australia CAS login
 - Bypass CAS security
@@ -80,3 +152,5 @@ Again docker-compose is used for local build and development. The image contains
 - Home at <http://localhost:8080/images/>
 - Admin at <http://localhost:8080/images/admin>
 - Image-store at <http://localhost:8001/store>
+
+An alternative sample properties for remote swarm mode deployment is mantained in the "swarm" folder. Every hostname should be replaced by a valid swarm load balancer (in case of PWD any node's external hostname will do). A specific docker-compose is kept in `docker-compose-swarm.yml` because `docker stack deploy` commands require a little different syntax.
