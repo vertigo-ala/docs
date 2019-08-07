@@ -65,14 +65,12 @@ Project `biocache-sample` holds sample config files and docker compose stack dep
 Deployments against a remote swarm should de done like below:
 
 ```sh
-cd <module>
 docker stack deploy -c docker-compose.yml biocache
 ```
 
 Removal is also done from the command-line:
 
 ```sh
-cd <module>
 docker stack remove biocache
 ```
 
