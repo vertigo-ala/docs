@@ -13,7 +13,8 @@ Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://j
 - Define a minimal set of externalized configs for the container
 - Automate container build (Docker hub auto build and/or Gitlab CI)
 - Create a sample project derived from this image (sample custom module)
-- Create a helm chart for k8s deployment with self-documented values.yaml
+- Create a helm chart for k8s deployment with self-documented values.yaml *OR*
+- Create a docker-compose.yml for `docker stack deploy` in swarm mode
 
 ### Understanding docker-compose workflow
 
@@ -35,24 +36,17 @@ All the default settings in docker-compose and properties files target localhost
 
 As a middle ground we will try to maintain sample config and compose files for remote swarm mode deployment, testable on play-with-docker disposable nodes.
 
-### Tips for remote play-with-docker deployment
+### Remote deployment (provisioning)
 
-[Play-with-docker](https://play-with-docker.com) is an excellent way to test a remote deployment for free.
+The project "terraform-swarm" holds a ready-to-use terraform recipe for a full swarm mode cluster in AWS Lightsail (simpler than EC2). Currently its default is a 1-manager 3-worker nodes swarm mode cluster, running traefik as web front-end and portainer as management tool.
 
-1. Create PWD instances using the "3 Managers, 2 Workers" template
-2. Write down manager1 external hostname using any of the tricks below, resulting in a hostname in the form "ipxxxxx-yyyyyyyyyy.direct.labs.play-with-docker.com":
-
-    - Copy the SSH hostname PWD gives and replace "@" for "."
-    - **OR** run the command below from manager1 shell for its output:
+The command sequence is repeated below:
 
 ```sh
-echo "ip$(ifconfig eth1 | grep Mask | awk '{print $2}'| cut -f2 -d: | tr '.' '-')-$SESSION_ID.direct.labs.play-with-docker.com"
-```
-
-3. Adjust your local DOCKER_HOST env var to the remote manager's engine in the form below, testing for the node list:
-
-```sh
-export DOCKER_HOST=tcp://<your-manager-external-hostname>:2375
+aws configure (...) # your own credentials and profile
+terraform apply
+ansible-playbook install-docker-ce.yaml -i ./terraform.py
+docker stack deploy --compose-file=traefik-portainer-stack.yml traefik
 docker node ls
 ID                            HOSTNAME            ...
 tew2q0h8s9eodehgf8qp8198t *   manager1            ...
@@ -62,29 +56,36 @@ yihno6jr5uett2q9tedemoif4     worker1             ...
 p20xoglmofu3id98ec6yd6kr0     worker2             ...
 ```
 
-Congratulations, you are in control of a remote play-with-docker swarm from your local command-line promt.
+Congratulations, you are in control of a remote swarm mode cluster from your local command-line promt.
+
+### Remote deployment (biocache-sample)
+
+Project `biocache-sample` holds sample config files and docker compose stack deployment for a working biocache environment.
 
 Deployments against a remote swarm should de done like below:
 
 ```sh
 cd <module>
-docker stack deploy -c docker-compose-swarm.yml <module-name>
+docker stack deploy -c docker-compose.yml biocache
 ```
 
 Removal is also done from the command-line:
 
 ```sh
 cd <module>
-docker stack remove <service-name>
+docker stack remove biocache
 ```
 
-### Implemented/deployed modules
+Current configs pin services to specific nodes. Not pretty but "good enough" to preserve states between redeployments without external storage. I am keeping it simple for now.
+
+### Implemented/deployed ALA modules
 
 - traefik
-- commonui-bs3
-- commonui-sample
+- commonui
+- apikey
+- solr-cloud
 - image-service
-- image-sample
+- biocache
 
 ### Modules' comments
 
