@@ -155,3 +155,25 @@ Again docker-compose is used for local build and testing. The image contains a m
 - Image-store at <http://localhost:8001/store>
 
 An alternative sample properties for remote swarm mode deployment is mantained in the "swarm" folder. Every hostname should be replaced by a valid swarm load balancer (in case of PWD any node's external hostname will do). A specific docker-compose is kept in `docker-compose-swarm.yml` because `docker stack deploy` commands require a little different syntax.
+
+#### biocache-store
+
+This is the biocache coomand line module to load data into any ALA deployment.
+
+This module has a few environment variables that affect its behaviour:
+
+- BIOPWD: text password for "biocache" ssh user (defaults to "biocache")
+- PUBLICKEY: if provided password login is disabled and only key authentication agains this public key is accepted
+- USETTYD: if "true" SSHD is not executed - a web shell instead accepts browser connections at port 7681
+
+#### biocache-sample
+
+Remote deployment of a "full" biocache stack (actually only image upload works for now).
+
+- Apikey (web + mysql)
+- Custom commonui
+- Image-service (web + postgres + elasticsearch + image-store)
+- Collectory (web + mysql)
+- Solr cloud (solr + zookeeper)
+- Biocache (command line + cassandra)
+- Australia CAS login (bypass=true)
