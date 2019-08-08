@@ -44,6 +44,7 @@ The command sequence is repeated below:
 
 ```sh
 aws configure (...) # your own credentials and profile
+# export AWS_PROFILE=.... # if not the default profile
 terraform apply
 ansible-playbook install-docker-ce.yaml -i ./terraform.py
 docker stack deploy --compose-file=traefik-portainer-stack.yml traefik
